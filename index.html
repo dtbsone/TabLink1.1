@@ -61,10 +61,11 @@
             overflow-x: hidden;
         }
 
+        /* --- NEW AUTH STYLES --- */
         #authScreen {
             position: fixed;
             inset: 0;
-            background: var(--bg);
+            background: linear-gradient(135deg, #25405c 0%, #000000 100%);
             z-index: 9999;
             display: flex;
             align-items: center;
@@ -72,16 +73,113 @@
             padding: 20px;
         }
 
+        body.dark-mode #authScreen {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        }
+
         .auth-card {
-            background: var(--surface);
-            padding: 30px;
-            border-radius: var(--radius-lg);
+            background: rgba(223, 223, 223, 0.85);
+            padding: 40px;
+            border-radius: 24px;
             width: 100%;
-            max-width: 380px;
-            box-shadow: var(--shadow-soft);
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
             text-align: center;
             border: 1px solid var(--border);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
         }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: var(--primary-gradient);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-radius: 14px;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .auth-input:focus {
+            border-color: var(--primary);
+            background: var(--surface);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .auth-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 32px;
+        }
+
+        body.dark-mode .auth-icon {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        }
+
+        .auth-title {
+            margin-bottom: 8px;
+            color: var(--text-main);
+            font-weight: 800;
+            font-size: 24px;
+            letter-spacing: -0.5px;
+        }
+
+        .auth-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        .auth-link {
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-weight: 600;
+            transition: color 0.2s;
+            display: inline-block;
+        }
+
+        .auth-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* ----------------------- */
 
         header {
             position: fixed;
@@ -97,7 +195,23 @@
 
         #mainApp {
             display: none;
-            padding-top: 80px;
+            padding-top: 60px;
+        }
+
+        /* Update lebar maksimal header dan konten utama */
+        .header-content,
+        .search-container,
+        .wrapper {
+            max-width: 1500px !important;
+            margin: 0 auto;
+        }
+
+        /* Penyesuaian Grid agar lebih responsif di layar lebar */
+        @media (min-width: 768px) {
+            .grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 20px;
+            }
         }
 
         .header-content {
@@ -126,6 +240,12 @@
             font-weight: 700;
             cursor: pointer;
             margin-top: 10px;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .btn-auth:active {
+            transform: scale(0.98);
         }
 
         .btn-auth:disabled {
@@ -133,17 +253,59 @@
             cursor: not-allowed;
         }
 
-        .dark-toggle,
         .logout-toggle {
-            background: var(--border);
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-soft);
+            color: var(--danger);
+            margin-left: 8px;
+        }
+
+        .logout-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -4px rgba(239, 68, 68, 0.15);
+            border-color: var(--danger);
+            background: #fff1f2;
+        }
+
+        .logout-toggle:active {
+            transform: scale(0.92);
+        }
+
+        .dark-toggle {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-soft);
+            color: var(--text-main);
+            margin-left: 8px;
+        }
+
+        .dark-toggle:hover {
+            transform: translateY(-2px) rotate(15deg);
+            box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .dark-toggle:active {
+            transform: scale(0.92);
         }
 
         .category-group {
@@ -222,6 +384,8 @@
             text-align: center;
             cursor: pointer;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .btn-icon {
@@ -231,16 +395,50 @@
             border: none;
             cursor: pointer;
             margin-left: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .btn-edit {
-            background: #eff6ff;
+            background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
             color: #3b82f6;
+            border: 1px solid #bfdbfe;
+        }
+
+        .btn-edit:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
+            border-color: #3b82f6;
+        }
+
+        .btn-edit:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
         }
 
         .btn-del {
-            background: #fff1f2;
+            background: linear-gradient(135deg, #ffe4e6 0%, #fff1f2 100%);
             color: #f43f5e;
+            border: 1px solid #fecdd3;
+        }
+
+        .btn-del:hover {
+            background: linear-gradient(135deg, #f43f5e 0%, #dc2626 100%);
+            color: white;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(244, 63, 94, 0.3);
+            border-color: #f43f5e;
+        }
+
+        .btn-del:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(244, 63, 94, 0.2);
         }
 
         .btn-cat {
@@ -255,9 +453,9 @@
         }
 
         .search-container {
-            max-width: 850px;
+            max-width: 950px;
             margin: 15px auto;
-            padding: 0 16px;
+            padding: 0 8px;
         }
 
         .search-input {
@@ -268,21 +466,38 @@
             background: var(--surface);
             color: var(--text-main);
             outline: none;
+            box-shadow: var(--shadow-soft);
         }
 
         .fab {
             position: fixed;
             bottom: 30px;
             right: 25px;
-            width: 60px;
-            height: 60px;
+            width: 64px;
+            height: 64px;
             background: var(--primary-gradient);
             color: white;
             border: none;
-            border-radius: 20px;
-            font-size: 30px;
+            border-radius: 22px;
+            font-size: 32px;
             z-index: 999;
-            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .fab:hover {
+            transform: translateY(-6px) scale(1.05) rotate(90deg);
+            box-shadow: 0 20px 40px -5px rgba(99, 102, 241, 0.6);
+            border-radius: 50%;
+        }
+
+        .fab:active {
+            transform: scale(0.92) rotate(90deg);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
         }
 
         .alert-overlay,
@@ -310,23 +525,35 @@
         .view-toggle {
             background: var(--border);
             padding: 4px;
-            border-radius: 12px;
+            border-radius: 14px;
             display: flex;
+            gap: 4px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
         .view-toggle button {
-            padding: 6px 14px;
+            padding: 8px 16px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             background: transparent;
             font-weight: 700;
             font-size: 12px;
             color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .view-toggle button:hover {
+            color: var(--text-main);
         }
 
         .view-toggle button.active-view {
             background: var(--surface);
             color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         #toast {
@@ -368,6 +595,75 @@
                 opacity: 1;
             }
         }
+
+        /* Gaya baru untuk deskripsi */
+        .desc-text {
+            color: var(--text-muted);
+            font-size: 11px;
+            margin-top: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+
+        /* Logout Modal Specifics */
+        .confirm-box {
+            background: var(--surface);
+            padding: 32px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .logout-emoji {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: inline-block;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-confirm-logout {
+            flex: 1;
+            padding: 12px;
+            border-radius: 14px;
+            border: none;
+            background: var(--danger);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            font-family: inherit;
+        }
     </style>
 </head>
 
@@ -375,25 +671,33 @@
 
     <div id="authScreen">
         <div class="auth-card" id="loginForm">
-            <h2 style="margin-bottom:20px; color:var(--primary); font-weight:800;">TabLink Login</h2>
-            <input type="text" id="userLogin" placeholder="Username"
-                style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
-            <input type="password" id="passLogin" placeholder="Password"
-                style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
-            <button class="btn-auth" id="btnLogin" onclick="handleAuth('login')">Masuk</button>
-            <div style="margin-top:15px; font-size:13px; color:var(--text-muted); cursor:pointer;"
-                onclick="toggleAuthView()">Belum punya akun? Daftar gratis</div>
+            <div class="auth-icon">🔐</div>
+            <h2 class="auth-title">Selamat Datang</h2>
+            <p class="auth-subtitle">Masuk untuk mengelola link Anda</p>
+
+            <input type="text" id="userLogin" class="auth-input" placeholder="Username">
+            <input type="password" id="passLogin" class="auth-input" placeholder="Password">
+
+            <button class="btn-auth" id="btnLogin" onclick="handleAuth('login')">Masuk Sekarang</button>
+
+            <div class="auth-link" onclick="toggleAuthView()">
+                Belum punya akun? <span style="color:var(--primary)">Daftar Gratis</span>
+            </div>
         </div>
 
         <div class="auth-card" id="registerForm" style="display: none;">
-            <h2 style="margin-bottom:20px; color:var(--primary); font-weight:800;">Buat Akun</h2>
-            <input type="text" id="userReg" placeholder="Username Baru"
-                style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
-            <input type="password" id="passReg" placeholder="Password"
-                style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
-            <button class="btn-auth" id="btnReg" onclick="handleAuth('register')">Daftar Sekarang</button>
-            <div style="margin-top:15px; font-size:13px; color:var(--text-muted); cursor:pointer;"
-                onclick="toggleAuthView()">Sudah punya akun? Login</div>
+            <div class="auth-icon">✨</div>
+            <h2 class="auth-title">Buat Akun Baru</h2>
+            <p class="auth-subtitle">Bergabunglah dengan TabLink hari ini</p>
+
+            <input type="text" id="userReg" class="auth-input" placeholder="Pilih Username">
+            <input type="password" id="passReg" class="auth-input" placeholder="Buat Password">
+
+            <button class="btn-auth" id="btnReg" onclick="handleAuth('register')">Daftar Akun</button>
+
+            <div class="auth-link" onclick="toggleAuthView()">
+                Sudah punya akun? <span style="color:var(--primary)">Login disini</span>
+            </div>
         </div>
     </div>
 
@@ -402,14 +706,27 @@
             <div class="header-content">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <h1>TabLink 🔗</h1>
-                    <button class="dark-toggle" onclick="toggleDarkMode()" id="darkBtn">🌙</button>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <div id="statusInfo"
-                        style="font-size: 9px; font-weight: 800; color: var(--text-muted); text-align: right;">
-                        Sesi: <span id="sessName">-</span><br>STATUS: READY
+                        style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-align: right; line-height: 1.2;">
+                        SESI: <span id="sessName" style="color: var(--primary);">-</span><br>
+                        <span style="color: var(--success); font-size: 9px;">● ONLINE</span>
                     </div>
-                    <button class="logout-toggle" onclick="logout()" title="Logout">🚪</button>
+                    <button class="dark-toggle" onclick="toggleDarkMode()" id="darkBtn" title="Ganti Tema">
+                        <!-- Default Moon Icon (for Light Mode) -->
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#6366f1" stroke="none">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+                    <button class="logout-toggle" onclick="logout()" title="Logout">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </header>
@@ -444,6 +761,8 @@
                     style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
                 <input type="text" id="kategoriUrl" list="kategoriList" placeholder="Kategori"
                     style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
+                <textarea id="deskripsiUrl" placeholder="Deskripsi (Opsional)"
+                    style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border); font-family: inherit; resize: none; height: 80px;"></textarea>
                 <datalist id="kategoriList"></datalist>
                 <button onclick="simpanLink()"
                     style="width:100%; padding:16px; background:var(--primary-gradient); color:white; border:none; border-radius:14px; font-weight:800; cursor:pointer;">Simpan
@@ -459,21 +778,75 @@
                 <h2 style="font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px;">LIBRARY
                 </h2>
                 <div class="view-toggle">
-                    <button id="btnList" class="active-view" onclick="toggleView('list')">LIST</button>
-                    <button id="btnGrid" onclick="toggleView('grid')">GRID</button>
+                    <button id="btnList" class="active-view" onclick="toggleView('list')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="8" y1="6" x2="21" y2="6"></line>
+                            <line x1="8" y1="12" x2="21" y2="12"></line>
+                            <line x1="8" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                        </svg>
+                    </button>
+                    <button id="btnGrid" onclick="toggleView('grid')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </button>
                 </div>
             </div>
             <div id="displayArea"></div>
         </div>
     </div>
 
+    <div id="logoutOverlay" class="alert-overlay">
+        <div class="confirm-box">
+            <div class="logout-emoji">👋</div>
+            <h3 style="margin-bottom: 8px; font-size: 18px; color: var(--text-main); font-weight: 800;">Sampai Jumpa!
+            </h3>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
+                Yakin ingin keluar dari sesi ini?<br>Anda harus login ulang nanti.
+            </p>
+            <div style="display: flex; gap: 12px;">
+                <button onclick="closeLogoutModal()" class="btn-cancel">Batal</button>
+                <button onclick="confirmLogoutAction()" class="btn-confirm-logout">Keluar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwQKv-_yclw_KkeLgNpScsgSIKMF3K4j5UEP4cWj8TWnBEX-UI3WfppJg6lijx3_VKo/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwS1hvXofvKEgKzoML41a8d9UpUwO-1441wrDGDXeNWZHWjPz0JHOMfvHd_TdJyKDR1/exec";
 
         let currentEditingId = null;
         let currentView = 'list';
         let cachedLinks = [];
         let currentUser = JSON.parse(localStorage.getItem('tablink_user')) || null;
+
+        // Tambahkan ini di dalam bagian script
+        document.querySelectorAll('#loginForm input, #registerForm input').forEach(input => {
+            input.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    const type = this.closest('#loginForm') ? 'login' : 'register';
+                    handleAuth(type);
+                }
+            });
+        });
+
+        // Tambahkan listener untuk input di dalam modal
+        document.querySelectorAll('#modalInput input, #modalInput textarea').forEach(input => {
+            input.addEventListener('keypress', function (e) {
+                // Jika Enter ditekan dan bukan di dalam textarea (agar textarea tetap bisa ganti baris)
+                if (e.key === 'Enter' && this.tagName !== 'TEXTAREA') {
+                    e.preventDefault(); // Mencegah form reload jika ada
+                    simpanLink();
+                }
+            });
+        });
 
         // --- AUTH SYSTEM ---
         function toggleAuthView() {
@@ -487,12 +860,11 @@
             const pass = type === 'login' ? document.getElementById('passLogin').value : document.getElementById('passReg').value;
 
             if (!user || !pass) return alert("Isi username dan password!");
-            if (type === 'login') {
-                localStorage.removeItem('tablink_user'); // Hapus sisa session lama jika ada
-            }
+            if (type === 'login') { localStorage.removeItem('tablink_user'); }
+
             const btn = type === 'login' ? document.getElementById('btnLogin') : document.getElementById('btnReg');
             const originalText = btn.innerText;
-            btn.innerText = "⏳ Memproses...";
+            btn.innerText = "Memproses...";
             btn.disabled = true;
 
             const fd = new URLSearchParams();
@@ -506,24 +878,11 @@
 
                 if (result.status === "success") {
                     if (type === 'register') {
-                        // JIKA REGISTRASI BERHASIL
                         showToast("✅ Akun berhasil dibuat! Silakan Login.");
-
-                        // Kosongkan form registrasi
                         document.getElementById('userReg').value = "";
                         document.getElementById('passReg').value = "";
-
-                        // Kosongkan form login
-                        document.getElementById('userLogin').value = "";
-                        document.getElementById('passLogin').value = "";
-
-                        // Pindah ke layar login secara otomatis
-                        setTimeout(() => {
-                            toggleAuthView();
-                        }, 1500);
-
+                        setTimeout(() => toggleAuthView(), 1500);
                     } else {
-                        // JIKA LOGIN BERHASIL
                         currentUser = result.user;
                         localStorage.setItem('tablink_user', JSON.stringify(currentUser));
                         showToast("Selamat Datang!");
@@ -551,14 +910,60 @@
                 document.getElementById('mainApp').style.display = 'none';
             }
         }
+
+        function logout() {
+            document.getElementById('logoutOverlay').style.display = 'flex';
+        }
+
+        function closeLogoutModal() {
+            document.getElementById('logoutOverlay').style.display = 'none';
+        }
+
+        function confirmLogoutAction() {
+            closeLogoutModal();
+
+            // 1. Tambahkan overlay loading agar transisi tidak terasa kosong
+            const loader = document.createElement('div');
+            loader.innerHTML = `
+                <div style="position:fixed; top:0; left:0; width:100%; height:100%; 
+                            background:var(--bg); display:flex; flex-direction:column; 
+                            align-items:center; justify-content:center; z-index:9999; opacity:0; transition:0.5s;">
+                    <div class="spinner" style="width:40px; height:40px; border:4px solid var(--border); 
+                         border-top:4px solid var(--primary); border-radius:50%; animation:spin 1s linear infinite;"></div>
+                    <p style="margin-top:15px; font-weight:700; color:var(--text-main); font-family:'Plus Jakarta Sans';">Logout....</p>
+                </div>
+                <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+            `;
+            const loaderElem = loader.firstElementChild;
+            const styleElem = loader.lastElementChild;
+            document.body.appendChild(loaderElem);
+            document.body.appendChild(styleElem);
+
+            // 2. Efek Fade Out pada Aplikasi Utama
+            const mainApp = document.getElementById('mainApp');
+            mainApp.style.filter = 'blur(10px)';
+            mainApp.style.opacity = '0';
+            mainApp.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+
+            // 3. Munculkan Loader
+            setTimeout(() => {
+                loaderElem.style.opacity = '1';
+            }, 50);
+
+            // 4. Eksekusi Pembersihan
+            setTimeout(() => {
+                localStorage.clear();
+                currentUser = null;
+                cachedLinks = [];
+                window.location.reload();
+            }, 1500);
+        }
+
         async function fetchDataFromServer() {
             if (!currentUser) return;
             showSkeleton();
-
-            // Tambahkan &v= + timestamp agar browser tidak mengambil data dari cache
             const cacheBuster = new Date().getTime();
             const url = `${WEB_APP_URL}?action=getLinks&userId=${currentUser.id}&v=${cacheBuster}`;
-
             try {
                 const response = await fetch(url);
                 const data = await response.json();
@@ -569,50 +974,15 @@
                 document.getElementById("displayArea").innerHTML = "<p style='text-align:center;'>Gagal memuat data.</p>";
             }
         }
-        function logout() {
-            if (confirm("Keluar dari akun?")) {
-                // 1. Hapus storage
-                localStorage.clear();
 
-                // 2. Reset variabel global
-                currentUser = null;
-                cachedLinks = [];
-
-                // 3. Reset input form login agar bersih
-                document.getElementById('userLogin').value = "";
-                document.getElementById('passLogin').value = "";
-
-                // 4. Kembali ke tampilan awal
-                checkSession();
-
-                // 5. (Opsional) Refresh halaman untuk keamanan total
-                window.location.reload();
-            }
-        }
-
-        // --- DATA LOGIC ---
-        async function fetchDataFromServer() {
-            if (!currentUser) return;
-            showSkeleton();
-            document.getElementById("statusInfo").innerHTML = `Sesi: ${currentUser.username.toUpperCase()}<br>STATUS: SYNCING...`;
-            try {
-                const response = await fetch(`${WEB_APP_URL}?action=getLinks&userId=${currentUser.id}`);
-                const data = await response.json();
-                cachedLinks = Array.isArray(data) ? data : [];
-                renderDisplay();
-                document.getElementById("statusInfo").innerHTML = `Sesi: ${currentUser.username.toUpperCase()}<br>STATUS: UPDATED`;
-            } catch (e) {
-                document.getElementById("displayArea").innerHTML = "<p style='text-align:center;'>Gagal memuat data.</p>";
-            }
-        }
-
-        // --- RENDER & SIMPAN (Sama Seperti Sebelumnya) ---
+        // --- RENDER DENGAN DESKRIPSI ---
         function renderDisplay(filter = "") {
             const area = document.getElementById("displayArea");
             area.innerHTML = "";
             const filtered = cachedLinks.filter(l =>
                 l.nama.toLowerCase().includes(filter) ||
                 l.url.toLowerCase().includes(filter) ||
+                (l.deskripsi && l.deskripsi.toLowerCase().includes(filter)) ||
                 (l.kategori && l.kategori.toLowerCase().includes(filter))
             );
 
@@ -654,13 +1024,14 @@
                         item.className = "link-item";
                         item.onclick = (e) => { if (!e.target.closest('button')) bukaLink(link.url); };
                         item.innerHTML = `
-                            <div style="flex-grow:1; overflow:hidden">
+                            <div style="flex-grow:1; overflow:hidden; padding-right:10px;">
                                 <div style="color:var(--primary); font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(link.nama)}</div>
-                                <small style="color:var(--text-muted); font-size:10px;">${link.url}</small>
+                                <small style="color:var(--text-muted); font-size:10px; display:block; margin-bottom:2px;">${link.url}</small>
+                                ${link.deskripsi ? `<div class="desc-text">${escapeHtml(link.deskripsi)}</div>` : ''}
                             </div>
                             <div style="display:flex">
-                                <button class="btn-icon btn-edit" onclick="editLink('${link.id}','${escapeHtml(link.nama)}','${escapeHtml(link.url)}','${escapeHtml(link.kategori)}')">✏️</button>
-                                <button class="btn-icon btn-del" onclick="hapusLink('${link.id}')">🗑️</button>
+                                <button class="btn-icon btn-edit" onclick="editLink('${link.id}','${escapeHtml(link.nama)}','${escapeHtml(link.url)}','${escapeHtml(link.kategori)}','${escapeHtml(link.deskripsi || '')}')"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"></path><path d=\"M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"></path></svg></button>
+                                <button class="btn-icon btn-del" onclick="hapusLink('${link.id}')"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"3 6 5 6 21 6\"></polyline><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"></path><line x1=\"10\" y1=\"11\" x2=\"10\" y2=\"17\"></line><line x1=\"14\" y1=\"11\" x2=\"14\" y2=\"17\"></line></svg></button>
                             </div>`;
                         content.appendChild(item);
                     });
@@ -673,14 +1044,15 @@
                         gCard.className = "grid-card";
                         gCard.onclick = (e) => { if (!e.target.closest('button')) bukaLink(link.url); };
                         gCard.innerHTML = `
-                            <div style="width:100%; height:80px; background:var(--border); display:flex; align-items:center; justify-content:center;">
-                                <img src="${faviconUrl}" style="width:32px; height:32px;" onerror="this.src='https://cdn-icons-png.flaticon.com/128/6994/6994770.png'">
+                            <div style="width:100%; height:70px; background:var(--border); display:flex; align-items:center; justify-content:center;">
+                                <img src="${faviconUrl}" style="width:28px; height:28px;" onerror="this.src='https://cdn-icons-png.flaticon.com/128/6994/6994770.png'">
                             </div>
-                            <div style="padding:10px;">
+                            <div style="padding:10px; flex-grow:1; display:flex; flex-direction:column;">
                                 <div style="color:var(--text-main); font-weight:700; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(link.nama)}</div>
-                                <div style="display:flex; justify-content:center; gap:4px; margin-top:8px">
-                                    <button class="btn-icon btn-edit" style="width:30px; height:30px" onclick="event.stopPropagation(); editLink('${link.id}','${escapeHtml(link.nama)}','${escapeHtml(link.url)}','${escapeHtml(link.kategori)}')">✏️</button>
-                                    <button class="btn-icon btn-del" style="width:30px; height:30px" onclick="event.stopPropagation(); hapusLink('${link.id}')">🗑️</button>
+                                ${link.deskripsi ? `<div class="desc-text" style="-webkit-line-clamp: 1; font-size:9px;">${escapeHtml(link.deskripsi)}</div>` : ''}
+                                <div style="display:flex; justify-content:center; gap:4px; margin-top:auto; padding-top:8px;">
+                                    <button class="btn-icon btn-edit" style="width:28px; height:28px; " onclick="event.stopPropagation(); editLink('${link.id}','${escapeHtml(link.nama)}','${escapeHtml(link.url)}','${escapeHtml(link.kategori)}','${escapeHtml(link.deskripsi || '')}')"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"></path><path d=\"M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"></path></svg></button>
+                                    <button class="btn-icon btn-del" style="width:28px; height:28px; " onclick="event.stopPropagation(); hapusLink('${link.id}')"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"3 6 5 6 21 6\"></polyline><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"></path><line x1=\"10\" y1=\"11\" x2=\"10\" y2=\"17\"></line><line x1=\"14\" y1=\"11\" x2=\"14\" y2=\"17\"></line></svg></button>
                                 </div>
                             </div>`;
                         grid.appendChild(gCard);
@@ -695,10 +1067,13 @@
             const nama = document.getElementById("namaUrl").value;
             const url = document.getElementById("isiUrl").value;
             const kategori = document.getElementById("kategoriUrl").value;
-            if (!nama || !url) return showToast("Lengkapi data!");
+            const deskripsi = document.getElementById("deskripsiUrl").value;
+
+            if (!nama || !url) return showToast("⚠️ Nama dan URL wajib diisi!");
+
             const finalKategori = kategori || "Umum";
             const tempId = currentEditingId || Date.now().toString();
-            const newData = { id: tempId, nama: nama, url: url, kategori: finalKategori };
+            const newData = { id: tempId, nama: nama, url: url, kategori: finalKategori, deskripsi: deskripsi };
 
             if (currentEditingId) {
                 const idx = cachedLinks.findIndex(l => l.id == currentEditingId);
@@ -713,11 +1088,99 @@
 
             const fd = new URLSearchParams();
             fd.append("action", currentEditingId ? "update" : "save");
-            fd.append("nama", nama); fd.append("url", url); fd.append("kategori", finalKategori);
             fd.append("userId", currentUser.id);
+            fd.append("nama", nama);
+            fd.append("url", url);
+            fd.append("kategori", finalKategori);
+            fd.append("deskripsi", deskripsi); // Mengirim deskripsi ke GAS
             if (currentEditingId) fd.append("id", currentEditingId);
+
             await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
         }
+
+        function editLink(id, n, u, k, d) {
+            document.getElementById("namaUrl").value = n;
+            document.getElementById("isiUrl").value = u;
+            document.getElementById("kategoriUrl").value = k;
+            document.getElementById("deskripsiUrl").value = d || ""; // Set deskripsi
+            currentEditingId = id;
+            document.getElementById("modalTitle").innerText = "Update Koleksi";
+            openModal();
+        }
+
+        // --- UI HELPERS ---
+        function handleSearch() { renderDisplay(document.getElementById("searchInput").value.toLowerCase()); }
+
+        function toggleView(v) {
+            currentView = v;
+            document.getElementById("btnList").classList.toggle("active-view", v === 'list');
+            document.getElementById("btnGrid").classList.toggle("active-view", v === 'grid');
+            renderDisplay(document.getElementById("searchInput").value.toLowerCase());
+        }
+
+        const ICON_SUN = `<svg width="24" height="24" viewBox="0 0 24 24" fill="#FDB813" stroke="none"><circle cx="12" cy="12" r="6"></circle><path d="M12 2V4M12 20V22M4 12H2M22 12H20M5 5L6 6M18 18L19 19M5 19L6 18M18 6L19 5" stroke="#FDB813" stroke-width="2" stroke-linecap="round"/></svg>`;
+        const ICON_MOON = `<svg width="24" height="24" viewBox="0 0 24 24" fill="#6366f1" stroke="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            document.getElementById('darkBtn').innerHTML = isDark ? ICON_SUN : ICON_MOON;
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById("toast");
+            t.innerText = msg; t.classList.add("show");
+            setTimeout(() => t.classList.remove("show"), 3000);
+        }
+
+        function showSkeleton() {
+            document.getElementById("displayArea").innerHTML = `<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>`;
+        }
+
+        function openModal() { updateKategoriDatalist(); document.getElementById("modalInput").style.display = "flex"; }
+
+        function closeModal() {
+            document.getElementById("modalInput").style.display = "none";
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById("namaUrl").value = "";
+            document.getElementById("isiUrl").value = "";
+            document.getElementById("kategoriUrl").value = "";
+            document.getElementById("deskripsiUrl").value = "";
+            currentEditingId = null;
+            document.getElementById("modalTitle").innerText = "Tambah Koleksi";
+        }
+
+        function updateKategoriDatalist() {
+            const list = document.getElementById("kategoriList");
+            list.innerHTML = "";
+            const unik = [...new Set(cachedLinks.map(l => l.kategori || "Umum"))];
+            unik.forEach(k => { const o = document.createElement("option"); o.value = k; list.appendChild(o); });
+        }
+
+        function escapeHtml(t) {
+            if (!t) return "";
+            const d = document.createElement('div');
+            d.textContent = t;
+            return d.innerHTML;
+        }
+
+        function bukaLink(u) {
+            if (!u || u === "#") return;
+            const target = u.startsWith('http') ? u : 'https://' + u;
+            window.open(target, '_blank');
+        }
+
+        function customConfirm(title, msg, onConfirm) {
+            document.getElementById("alertTitle").innerText = title;
+            document.getElementById("alertMsg").innerText = msg;
+            document.getElementById("alertOverlay").style.display = "flex";
+            document.getElementById("btnConfirmAlert").onclick = () => { onConfirm(); closeAlert(); };
+        }
+
+        function closeAlert() { document.getElementById("alertOverlay").style.display = "none"; }
 
         async function hapusLink(id) {
             customConfirm("Hapus?", "Data akan dihapus permanen.", async () => {
@@ -752,53 +1215,12 @@
             });
         }
 
-        // --- UI HELPERS ---
-        function toggleDarkMode() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', isDark);
-            document.getElementById('darkBtn').innerText = isDark ? '☀️' : '🌙';
-        }
         if (localStorage.getItem('darkMode') === 'true') {
             document.body.classList.add('dark-mode');
-            document.getElementById('darkBtn').innerText = '☀️';
+            document.getElementById('darkBtn').innerHTML = ICON_SUN;
         }
 
-        function showToast(msg) {
-            const t = document.getElementById("toast");
-            t.innerText = msg; t.classList.add("show");
-            setTimeout(() => t.classList.remove("show"), 3000);
-        }
-
-        function customConfirm(title, msg, onConfirm) {
-            document.getElementById("alertTitle").innerText = title;
-            document.getElementById("alertMsg").innerText = msg;
-            document.getElementById("alertOverlay").style.display = "flex";
-            document.getElementById("btnConfirmAlert").onclick = () => { onConfirm(); closeAlert(); };
-        }
-
-        function closeAlert() { document.getElementById("alertOverlay").style.display = "none"; }
-        function openModal() { updateKategoriDatalist(); document.getElementById("modalInput").style.display = "flex"; }
-        function closeModal() { document.getElementById("modalInput").style.display = "none"; resetForm(); }
-        function showSkeleton() { document.getElementById("displayArea").innerHTML = `<div class="skeleton"></div><div class="skeleton"></div>`; }
-        function handleSearch() { renderDisplay(document.getElementById("searchInput").value.toLowerCase()); }
-        function toggleView(m) {
-            currentView = m;
-            document.getElementById("btnList").classList.toggle("active-view", m === 'list');
-            document.getElementById("btnGrid").classList.toggle("active-view", m === 'grid');
-            renderDisplay(document.getElementById("searchInput").value.toLowerCase());
-        }
-        function updateKategoriDatalist() {
-            const list = document.getElementById("kategoriList");
-            list.innerHTML = "";
-            const unik = [...new Set(cachedLinks.map(l => l.kategori || "Umum"))];
-            unik.forEach(k => { const o = document.createElement("option"); o.value = k; list.appendChild(o); });
-        }
-        function bukaLink(u) { if (u === "#") return; if (!u.startsWith('http')) u = 'https://' + u; window.open(u, '_blank'); }
-        function resetForm() { document.getElementById("namaUrl").value = ""; document.getElementById("isiUrl").value = ""; document.getElementById("kategoriUrl").value = ""; currentEditingId = null; document.getElementById("modalTitle").innerText = "Tambah Koleksi"; }
-        function editLink(id, n, u, k) { document.getElementById("namaUrl").value = n; document.getElementById("isiUrl").value = u; document.getElementById("kategoriUrl").value = k; currentEditingId = id; document.getElementById("modalTitle").innerText = "Update Koleksi"; openModal(); }
-        function escapeHtml(t) { if (!t) return ""; const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
-
-        window.addEventListener("DOMContentLoaded", checkSession);
+        window.onload = checkSession;
     </script>
 </body>
 
