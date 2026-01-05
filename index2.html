@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>TabLink Pro - MultiUser</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TabLink">
+    <meta name="theme-color" content="#6366f1">
+
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/6994/6994770.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/128/6994/6994770.png">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #f1f5f9;
+            --input-bg: #ffffff;
+            --radius-lg: 20px;
+            --radius-md: 12px;
+            --shadow-soft: 0 4px 20px -1px rgba(0, 0, 0, 0.05);
+            --danger: #ef4444;
+            --success: #10b981;
+            --header-bg: rgba(255, 255, 255, 0.85);
+        }
+
+        body.dark-mode {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --input-bg: #1e293b;
+            --header-bg: rgba(15, 23, 42, 0.85);
+            --shadow-soft: 0 4px 20px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding-bottom: 100px;
+            overflow-x: hidden;
+        }
+
+        #authScreen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: var(--surface);
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 380px;
+            box-shadow: var(--shadow-soft);
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--header-bg);
+            backdrop-filter: blur(12px);
+            padding: 12px 20px;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+
+        #mainApp {
+            display: none;
+            padding-top: 80px;
+        }
+
+        .header-content {
+            max-width: 850px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        header h1 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-auth {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-auth:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .dark-toggle,
+        .logout-toggle {
+            background: var(--border);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-group {
+            margin-bottom: 15px;
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
+        }
+
+        .category-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .cat-badge {
+            background: var(--bg);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .arrow-icon {
+            font-size: 10px;
+            transition: transform 0.3s;
+            transform: rotate(-90deg);
+        }
+
+        .category-group.active .category-content {
+            display: block;
+        }
+
+        .category-group.active .arrow-icon {
+            transform: rotate(0deg);
+        }
+
+        .category-content {
+            display: none;
+            border-top: 1px solid var(--border);
+        }
+
+        .link-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 15px;
+        }
+
+        .grid-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            text-align: center;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .btn-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .btn-edit {
+            background: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .btn-del {
+            background: #fff1f2;
+            color: #f43f5e;
+        }
+
+        .btn-cat {
+            padding: 4px 8px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .search-container {
+            max-width: 850px;
+            margin: 15px auto;
+            padding: 0 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-main);
+            outline: none;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 30px;
+            z-index: 999;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .alert-overlay,
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 4000;
+            padding: 20px;
+        }
+
+        .card-input,
+        .alert-card {
+            background: var(--surface);
+            width: 100%;
+            max-width: 400px;
+            padding: 25px;
+            border-radius: 25px;
+        }
+
+        .view-toggle {
+            background: var(--border);
+            padding: 4px;
+            border-radius: 12px;
+            display: flex;
+        }
+
+        .view-toggle button {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .view-toggle button.active-view {
+            background: var(--surface);
+            color: var(--primary);
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            z-index: 5000;
+            opacity: 0;
+            transition: 0.4s;
+            pointer-events: none;
+        }
+
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .skeleton {
+            background: var(--border);
+            height: 60px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="authScreen">
+        <div class="auth-card" id="loginForm">
+            <h2 style="margin-bottom:20px; color:var(--primary); font-weight:800;">TabLink Login</h2>
+            <input type="text" id="userLogin" placeholder="Username"
+                style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
+            <input type="password" id="passLogin" placeholder="Password"
+                style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
+            <button class="btn-auth" id="btnLogin" onclick="handleAuth('login')">Masuk</button>
+            <div style="margin-top:15px; font-size:13px; color:var(--text-muted); cursor:pointer;"
+                onclick="toggleAuthView()">Belum punya akun? Daftar gratis</div>
+        </div>
+
+        <div class="auth-card" id="registerForm" style="display: none;">
+            <h2 style="margin-bottom:20px; color:var(--primary); font-weight:800;">Buat Akun</h2>
+            <input type="text" id="userReg" placeholder="Username Baru"
+                style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
+            <input type="password" id="passReg" placeholder="Password"
+                style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
+            <button class="btn-auth" id="btnReg" onclick="handleAuth('register')">Daftar Sekarang</button>
+            <div style="margin-top:15px; font-size:13px; color:var(--text-muted); cursor:pointer;"
+                onclick="toggleAuthView()">Sudah punya akun? Login</div>
+        </div>
+    </div>
+
+    <div id="mainApp">
+        <header>
+            <div class="header-content">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h1>TabLink 🔗</h1>
+                    <button class="dark-toggle" onclick="toggleDarkMode()" id="darkBtn">🌙</button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div id="statusInfo"
+                        style="font-size: 9px; font-weight: 800; color: var(--text-muted); text-align: right;">
+                        Sesi: <span id="sessName">-</span><br>STATUS: READY
+                    </div>
+                    <button class="logout-toggle" onclick="logout()" title="Logout">🚪</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="Cari link atau kategori..."
+                oninput="handleSearch()">
+        </div>
+
+        <button class="fab" onclick="openModal()">+</button>
+        <div id="toast">Notifikasi</div>
+
+        <div class="alert-overlay" id="alertOverlay">
+            <div class="alert-card">
+                <h3 id="alertTitle">Hapus?</h3>
+                <p id="alertMsg" style="color:var(--text-muted); margin-top:8px;">Tindakan tidak bisa dibatalkan.</p>
+                <div style="display:flex; gap:10px; margin-top:24px;">
+                    <button onclick="closeAlert()"
+                        style="flex:1; padding:12px; border-radius:12px; border:none; background:var(--border); font-weight:700;">Batal</button>
+                    <button id="btnConfirmAlert"
+                        style="flex:1; padding:12px; border-radius:12px; border:none; background:var(--danger); color:white; font-weight:700;">Hapus</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="modalInput">
+            <aside class="card-input">
+                <h2 style="margin-bottom: 20px; font-weight: 800;" id="modalTitle">Tambah Koleksi</h2>
+                <input type="text" id="namaUrl" placeholder="Nama Situs"
+                    style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
+                <input type="text" id="isiUrl" placeholder="URL (https://...)"
+                    style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
+                <input type="text" id="kategoriUrl" list="kategoriList" placeholder="Kategori"
+                    style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
+                <datalist id="kategoriList"></datalist>
+                <button onclick="simpanLink()"
+                    style="width:100%; padding:16px; background:var(--primary-gradient); color:white; border:none; border-radius:14px; font-weight:800; cursor:pointer;">Simpan
+                    Data</button>
+                <button onclick="closeModal()"
+                    style="width:100%; padding:12px; background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:600; margin-top:5px;">Tutup</button>
+            </aside>
+        </div>
+
+        <div class="wrapper" style="max-width: 850px; margin: 0 auto; padding: 0 16px;">
+            <div class="toolbar"
+                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px;">LIBRARY
+                </h2>
+                <div class="view-toggle">
+                    <button id="btnList" class="active-view" onclick="toggleView('list')">LIST</button>
+                    <button id="btnGrid" onclick="toggleView('grid')">GRID</button>
+                </div>
+            </div>
+            <div id="displayArea"></div>
+        </div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwQKv-_yclw_KkeLgNpScsgSIKMF3K4j5UEP4cWj8TWnBEX-UI3WfppJg6lijx3_VKo/exec";
+
+        let currentEditingId = null;
+        let currentView = 'list';
+        let cachedLinks = [];
+        let currentUser = JSON.parse(localStorage.getItem('tablink_user')) || null;
+
+        // --- AUTH SYSTEM ---
+        function toggleAuthView() {
+            const isLogin = document.getElementById('loginForm').style.display !== 'none';
+            document.getElementById('loginForm').style.display = isLogin ? 'none' : 'block';
+            document.getElementById('registerForm').style.display = isLogin ? 'block' : 'none';
+        }
+
+        async function handleAuth(type) {
+            const user = type === 'login' ? document.getElementById('userLogin').value : document.getElementById('userReg').value;
+            const pass = type === 'login' ? document.getElementById('passLogin').value : document.getElementById('passReg').value;
+
+            if (!user || !pass) return alert("Isi username dan password!");
+            if (type === 'login') {
+                localStorage.removeItem('tablink_user'); // Hapus sisa session lama jika ada
+            }
+            const btn = type === 'login' ? document.getElementById('btnLogin') : document.getElementById('btnReg');
+            const originalText = btn.innerText;
+            btn.innerText = "⏳ Memproses...";
+            btn.disabled = true;
+
+            const fd = new URLSearchParams();
+            fd.append("action", type);
+            fd.append("username", user);
+            fd.append("password", pass);
+
+            try {
+                const response = await fetch(WEB_APP_URL, { method: "POST", body: fd });
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    if (type === 'register') {
+                        // JIKA REGISTRASI BERHASIL
+                        showToast("✅ Akun berhasil dibuat! Silakan Login.");
+
+                        // Kosongkan form registrasi
+                        document.getElementById('userReg').value = "";
+                        document.getElementById('passReg').value = "";
+
+                        // Kosongkan form login
+                        document.getElementById('userLogin').value = "";
+                        document.getElementById('passLogin').value = "";
+
+                        // Pindah ke layar login secara otomatis
+                        setTimeout(() => {
+                            toggleAuthView();
+                        }, 1500);
+
+                    } else {
+                        // JIKA LOGIN BERHASIL
+                        currentUser = result.user;
+                        localStorage.setItem('tablink_user', JSON.stringify(currentUser));
+                        showToast("Selamat Datang!");
+                        setTimeout(() => checkSession(), 800);
+                    }
+                } else {
+                    alert(result.message);
+                }
+            } catch (e) {
+                alert("Gagal terhubung ke server.");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function checkSession() {
+            if (currentUser) {
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'block';
+                document.getElementById('sessName').innerText = currentUser.username.toUpperCase();
+                fetchDataFromServer();
+            } else {
+                document.getElementById('authScreen').style.display = 'flex';
+                document.getElementById('mainApp').style.display = 'none';
+            }
+        }
+        async function fetchDataFromServer() {
+            if (!currentUser) return;
+            showSkeleton();
+
+            // Tambahkan &v= + timestamp agar browser tidak mengambil data dari cache
+            const cacheBuster = new Date().getTime();
+            const url = `${WEB_APP_URL}?action=getLinks&userId=${currentUser.id}&v=${cacheBuster}`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                cachedLinks = Array.isArray(data) ? data : [];
+                renderDisplay();
+                document.getElementById("statusInfo").innerHTML = `Sesi: ${currentUser.username.toUpperCase()}<br>STATUS: UPDATED`;
+            } catch (e) {
+                document.getElementById("displayArea").innerHTML = "<p style='text-align:center;'>Gagal memuat data.</p>";
+            }
+        }
+        function logout() {
+            if (confirm("Keluar dari akun?")) {
+                // 1. Hapus storage
+                localStorage.clear();
+
+                // 2. Reset variabel global
+                currentUser = null;
+                cachedLinks = [];
+
+                // 3. Reset input form login agar bersih
+                document.getElementById('userLogin').value = "";
+                document.getElementById('passLogin').value = "";
+
+                // 4. Kembali ke tampilan awal
+                checkSession();
+
+                // 5. (Opsional) Refresh halaman untuk keamanan total
+                window.location.reload();
+            }
+        }
+
+        // --- DATA LOGIC ---
+        async function fetchDataFromServer() {
+            if (!currentUser) return;
+            showSkeleton();
+            document.getElementById("statusInfo").innerHTML = `Sesi: ${currentUser.username.toUpperCase()}<br>STATUS: SYNCING...`;
+            try {
+                const response = await fetch(`${WEB_APP_URL}?action=getLinks&userId=${currentUser.id}`);
+                const data = await response.json();
+                cachedLinks = Array.isArray(data) ? data : [];
+                renderDisplay();
+                document.getElementById("statusInfo").innerHTML = `Sesi: ${currentUser.username.toUpperCase()}<br>STATUS: UPDATED`;
+            } catch (e) {
+                document.getElementById("displayArea").innerHTML = "<p style='text-align:center;'>Gagal memuat data.</p>";
+            }
+        }
+
+        // --- RENDER & SIMPAN (Sama Seperti Sebelumnya) ---
+        function renderDisplay(filter = "") {
+            const area = document.getElementById("displayArea");
+            area.innerHTML = "";
+            const filtered = cachedLinks.filter(l =>
+                l.nama.toLowerCase().includes(filter) ||
+                l.url.toLowerCase().includes(filter) ||
+                (l.kategori && l.kategori.toLowerCase().includes(filter))
+            );
+
+            if (filtered.length === 0) {
+                area.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-weight:700;">Tidak ditemukan.</div>`;
+                return;
+            }
+
+            const grouped = {};
+            filtered.forEach(l => {
+                const k = l.kategori || "Umum";
+                if (!grouped[k]) grouped[k] = [];
+                grouped[k].push(l);
+            });
+
+            Object.keys(grouped).forEach(kategori => {
+                const groupDiv = document.createElement("div");
+                groupDiv.className = filter === "" ? "category-group" : "category-group active";
+
+                const header = document.createElement("div");
+                header.className = "category-header";
+                header.onclick = (e) => { if (!e.target.closest('button')) groupDiv.classList.toggle('active'); };
+                header.innerHTML = `
+                    <div class="category-title">
+                        <span class="arrow-icon">▼</span>📂 ${kategori}
+                        <span class="cat-badge">${grouped[kategori].length}</span>
+                    </div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-cat" onclick="gantiNamaKategori('${kategori}')">RENAME</button>
+                        <button class="btn-cat" style="color:var(--danger)" onclick="hapusKategori('${kategori}')">DELETE</button>
+                    </div>`;
+
+                const content = document.createElement("div");
+                content.className = "category-content";
+
+                if (currentView === 'list') {
+                    grouped[kategori].forEach(link => {
+                        const item = document.createElement("div");
+                        item.className = "link-item";
+                        item.onclick = (e) => { if (!e.target.closest('button')) bukaLink(link.url); };
+                        item.innerHTML = `
+                            <div style="flex-grow:1; overflow:hidden">
+                                <div style="color:var(--primary); font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(link.nama)}</div>
+                                <small style="color:var(--text-muted); font-size:10px;">${link.url}</small>
+                            </div>
+                            <div style="display:flex">
+                                <button class="btn-icon btn-edit" onclick="editLink('${link.id}','${escapeHtml(link.nama)}','${escapeHtml(link.url)}','${escapeHtml(link.kategori)}')">✏️</button>
+                                <button class="btn-icon btn-del" onclick="hapusLink('${link.id}')">🗑️</button>
+                            </div>`;
+                        content.appendChild(item);
+                    });
+                } else {
+                    const grid = document.createElement("div");
+                    grid.className = "grid-container";
+                    grouped[kategori].forEach(link => {
+                        const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${link.url.replace('https://', '').split(/[/?#]/)[0]}`;
+                        const gCard = document.createElement("div");
+                        gCard.className = "grid-card";
+                        gCard.onclick = (e) => { if (!e.target.closest('button')) bukaLink(link.url); };
+                        gCard.innerHTML = `
+                            <div style="width:100%; height:80px; background:var(--border); display:flex; align-items:center; justify-content:center;">
+                                <img src="${faviconUrl}" style="width:32px; height:32px;" onerror="this.src='https://cdn-icons-png.flaticon.com/128/6994/6994770.png'">
+                            </div>
+                            <div style="padding:10px;">
+                                <div style="color:var(--text-main); font-weight:700; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(link.nama)}</div>
+                                <div style="display:flex; justify-content:center; gap:4px; margin-top:8px">
+                                    <button class="btn-icon btn-edit" style="width:30px; height:30px" onclick="event.stopPropagation(); editLink('${link.id}','${escapeHtml(link.nama)}','${escapeHtml(link.url)}','${escapeHtml(link.kategori)}')">✏️</button>
+                                    <button class="btn-icon btn-del" style="width:30px; height:30px" onclick="event.stopPropagation(); hapusLink('${link.id}')">🗑️</button>
+                                </div>
+                            </div>`;
+                        grid.appendChild(gCard);
+                    });
+                    content.appendChild(grid);
+                }
+                groupDiv.appendChild(header); groupDiv.appendChild(content); area.appendChild(groupDiv);
+            });
+        }
+
+        async function simpanLink() {
+            const nama = document.getElementById("namaUrl").value;
+            const url = document.getElementById("isiUrl").value;
+            const kategori = document.getElementById("kategoriUrl").value;
+            if (!nama || !url) return showToast("Lengkapi data!");
+            const finalKategori = kategori || "Umum";
+            const tempId = currentEditingId || Date.now().toString();
+            const newData = { id: tempId, nama: nama, url: url, kategori: finalKategori };
+
+            if (currentEditingId) {
+                const idx = cachedLinks.findIndex(l => l.id == currentEditingId);
+                if (idx !== -1) cachedLinks[idx] = newData;
+            } else {
+                cachedLinks.unshift(newData);
+            }
+
+            renderDisplay(document.getElementById("searchInput").value.toLowerCase());
+            closeModal();
+            showToast("Menyimpan...");
+
+            const fd = new URLSearchParams();
+            fd.append("action", currentEditingId ? "update" : "save");
+            fd.append("nama", nama); fd.append("url", url); fd.append("kategori", finalKategori);
+            fd.append("userId", currentUser.id);
+            if (currentEditingId) fd.append("id", currentEditingId);
+            await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
+        }
+
+        async function hapusLink(id) {
+            customConfirm("Hapus?", "Data akan dihapus permanen.", async () => {
+                cachedLinks = cachedLinks.filter(l => l.id != id);
+                renderDisplay(document.getElementById("searchInput").value.toLowerCase());
+                const fd = new URLSearchParams();
+                fd.append("action", "delete"); fd.append("id", id); fd.append("userId", currentUser.id);
+                await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
+            });
+        }
+
+        async function gantiNamaKategori(lama) {
+            const baru = prompt("Nama baru untuk kategori '" + lama + "':", lama);
+            if (baru && baru !== lama) {
+                cachedLinks.forEach(l => { if (l.kategori === lama) l.kategori = baru; });
+                renderDisplay(document.getElementById("searchInput").value.toLowerCase());
+                const fd = new URLSearchParams();
+                fd.append("action", "renameCategory"); fd.append("oldCategory", lama); fd.append("newCategory", baru); fd.append("userId", currentUser.id);
+                await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
+                showToast("Kategori diperbarui!");
+            }
+        }
+
+        function hapusKategori(namaKategori) {
+            customConfirm("Hapus Kategori?", `Hapus semua link di "${namaKategori}"?`, async () => {
+                cachedLinks = cachedLinks.filter(l => l.kategori !== namaKategori);
+                renderDisplay(document.getElementById("searchInput").value.toLowerCase());
+                const fd = new URLSearchParams();
+                fd.append("action", "deleteCategory"); fd.append("kategori", namaKategori); fd.append("userId", currentUser.id);
+                await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
+                showToast("Kategori dihapus!");
+            });
+        }
+
+        // --- UI HELPERS ---
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            document.getElementById('darkBtn').innerText = isDark ? '☀️' : '🌙';
+        }
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('darkBtn').innerText = '☀️';
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById("toast");
+            t.innerText = msg; t.classList.add("show");
+            setTimeout(() => t.classList.remove("show"), 3000);
+        }
+
+        function customConfirm(title, msg, onConfirm) {
+            document.getElementById("alertTitle").innerText = title;
+            document.getElementById("alertMsg").innerText = msg;
+            document.getElementById("alertOverlay").style.display = "flex";
+            document.getElementById("btnConfirmAlert").onclick = () => { onConfirm(); closeAlert(); };
+        }
+
+        function closeAlert() { document.getElementById("alertOverlay").style.display = "none"; }
+        function openModal() { updateKategoriDatalist(); document.getElementById("modalInput").style.display = "flex"; }
+        function closeModal() { document.getElementById("modalInput").style.display = "none"; resetForm(); }
+        function showSkeleton() { document.getElementById("displayArea").innerHTML = `<div class="skeleton"></div><div class="skeleton"></div>`; }
+        function handleSearch() { renderDisplay(document.getElementById("searchInput").value.toLowerCase()); }
+        function toggleView(m) {
+            currentView = m;
+            document.getElementById("btnList").classList.toggle("active-view", m === 'list');
+            document.getElementById("btnGrid").classList.toggle("active-view", m === 'grid');
+            renderDisplay(document.getElementById("searchInput").value.toLowerCase());
+        }
+        function updateKategoriDatalist() {
+            const list = document.getElementById("kategoriList");
+            list.innerHTML = "";
+            const unik = [...new Set(cachedLinks.map(l => l.kategori || "Umum"))];
+            unik.forEach(k => { const o = document.createElement("option"); o.value = k; list.appendChild(o); });
+        }
+        function bukaLink(u) { if (u === "#") return; if (!u.startsWith('http')) u = 'https://' + u; window.open(u, '_blank'); }
+        function resetForm() { document.getElementById("namaUrl").value = ""; document.getElementById("isiUrl").value = ""; document.getElementById("kategoriUrl").value = ""; currentEditingId = null; document.getElementById("modalTitle").innerText = "Tambah Koleksi"; }
+        function editLink(id, n, u, k) { document.getElementById("namaUrl").value = n; document.getElementById("isiUrl").value = u; document.getElementById("kategoriUrl").value = k; currentEditingId = id; document.getElementById("modalTitle").innerText = "Update Koleksi"; openModal(); }
+        function escapeHtml(t) { if (!t) return ""; const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+        window.addEventListener("DOMContentLoaded", checkSession);
+    </script>
+</body>
+
+</html>
