@@ -817,114 +817,344 @@
                 <button onclick="confirmLogoutAction()" class="btn-confirm-logout">Keluar</button>
             </div>
         </div>
-    </div>
-
-    <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwS1hvXofvKEgKzoML41a8d9UpUwO-1441wrDGDXeNWZHWjPz0JHOMfvHd_TdJyKDR1/exec";
-
-        let currentEditingId = null;
-        let currentView = 'list';
-        let cachedLinks = [];
-        let currentUser = JSON.parse(localStorage.getItem('tablink_user')) || null;
-
-        // Tambahkan ini di dalam bagian script
-        document.querySelectorAll('#loginForm input, #registerForm input').forEach(input => {
-            input.addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    const type = this.closest('#loginForm') ? 'login' : 'register';
-                    handleAuth(type);
-                }
-            });
-        });
-
-        // Tambahkan listener untuk input di dalam modal
-        document.querySelectorAll('#modalInput input, #modalInput textarea').forEach(input => {
-            input.addEventListener('keypress', function (e) {
-                // Jika Enter ditekan dan bukan di dalam textarea (agar textarea tetap bisa ganti baris)
-                if (e.key === 'Enter' && this.tagName !== 'TEXTAREA') {
-                    e.preventDefault(); // Mencegah form reload jika ada
-                    simpanLink();
-                }
-            });
-        });
-
-        // --- AUTH SYSTEM ---
-        function toggleAuthView() {
-            const isLogin = document.getElementById('loginForm').style.display !== 'none';
-            document.getElementById('loginForm').style.display = isLogin ? 'none' : 'block';
-            document.getElementById('registerForm').style.display = isLogin ? 'block' : 'none';
+        from {
+        transform: scale(0.9);
+        opacity: 0;
         }
 
-        async function handleAuth(type) {
-            const user = type === 'login' ? document.getElementById('userLogin').value : document.getElementById('userReg').value;
-            const pass = type === 'login' ? document.getElementById('passLogin').value : document.getElementById('passReg').value;
+        to {
+        transform: scale(1);
+        opacity: 1;
+        }
+        }
 
-            if (!user || !pass) return alert("Isi username dan password!");
-            if (type === 'login') { localStorage.removeItem('tablink_user'); }
+        .logout-emoji {
+        font-size: 48px;
+        margin-bottom: 16px;
+        display: inline-block;
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+        }
 
-            const btn = type === 'login' ? document.getElementById('btnLogin') : document.getElementById('btnReg');
-            const originalText = btn.innerText;
-            btn.innerText = "Memproses...";
-            btn.disabled = true;
+        .btn-cancel {
+        flex: 1;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-muted);
+        font-weight: 700;
+        cursor: pointer;
+        font-family: inherit;
+        }
 
-            const fd = new URLSearchParams();
-            fd.append("action", type);
-            fd.append("username", user);
-            fd.append("password", pass);
+        .btn-confirm-logout {
+        flex: 1;
+        padding: 12px;
+        border-radius: 14px;
+        border: none;
+        background: var(--danger);
+        color: white;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        font-family: inherit;
+        }
+        </style>
+        </head>
 
-            try {
-                const response = await fetch(WEB_APP_URL, { method: "POST", body: fd });
-                const result = await response.json();
+        <body>
 
-                if (result.status === "success") {
-                    if (type === 'register') {
-                        showToast("✅ Akun berhasil dibuat! Silakan Login.");
-                        document.getElementById('userReg').value = "";
-                        document.getElementById('passReg').value = "";
-                        setTimeout(() => toggleAuthView(), 1500);
-                    } else {
-                        currentUser = result.user;
-                        localStorage.setItem('tablink_user', JSON.stringify(currentUser));
-                        showToast("Selamat Datang!");
-                        setTimeout(() => checkSession(), 800);
+            <div id="authScreen">
+                <div class="auth-card" id="loginForm">
+                    <div class="auth-icon">🔐</div>
+                    <h2 class="auth-title">Selamat Datang</h2>
+                    <p class="auth-subtitle">Masuk untuk mengelola link Anda</p>
+
+                    <input type="text" id="userLogin" class="auth-input" placeholder="Username">
+                    <input type="password" id="passLogin" class="auth-input" placeholder="Password">
+
+                    <button class="btn-auth" id="btnLogin" onclick="handleAuth('login')">Masuk Sekarang</button>
+
+                    <div class="auth-link" onclick="toggleAuthView()">
+                        Belum punya akun? <span style="color:var(--primary)">Daftar Gratis</span>
+                    </div>
+                </div>
+
+                <div class="auth-card" id="registerForm" style="display: none;">
+                    <div class="auth-icon">✨</div>
+                    <h2 class="auth-title">Buat Akun Baru</h2>
+                    <p class="auth-subtitle">Bergabunglah dengan TabLink hari ini</p>
+
+                    <input type="text" id="userReg" class="auth-input" placeholder="Pilih Username">
+                    <input type="password" id="passReg" class="auth-input" placeholder="Buat Password">
+
+                    <button class="btn-auth" id="btnReg" onclick="handleAuth('register')">Daftar Akun</button>
+
+                    <div class="auth-link" onclick="toggleAuthView()">
+                        Sudah punya akun? <span style="color:var(--primary)">Login disini</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mainApp">
+                <header>
+                    <div class="header-content">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <h1>TabLink 🔗</h1>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div id="statusInfo"
+                                style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-align: right; line-height: 1.2;">
+                                SESI: <span id="sessName" style="color: var(--primary);">-</span><br>
+                                <span style="color: var(--success); font-size: 9px;">● ONLINE</span>
+                            </div>
+                            <button class="dark-toggle" onclick="toggleDarkMode()" id="darkBtn" title="Ganti Tema">
+                                <!-- Default Moon Icon (for Light Mode) -->
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="#6366f1" stroke="none">
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                </svg>
+                            </button>
+                            <button class="logout-toggle" onclick="logout()" title="Logout">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Cari link atau kategori..."
+                        oninput="handleSearch()">
+                </div>
+
+                <button class="fab" onclick="openModal()">+</button>
+                <div id="toast">Notifikasi</div>
+
+                <div class="alert-overlay" id="alertOverlay">
+                    <div class="alert-card">
+                        <h3 id="alertTitle">Hapus?</h3>
+                        <p id="alertMsg" style="color:var(--text-muted); margin-top:8px;">Tindakan tidak bisa
+                            dibatalkan.</p>
+                        <div style="display:flex; gap:10px; margin-top:24px;">
+                            <button onclick="closeAlert()"
+                                style="flex:1; padding:12px; border-radius:12px; border:none; background:var(--border); font-weight:700;">Batal</button>
+                            <button id="btnConfirmAlert"
+                                style="flex:1; padding:12px; border-radius:12px; border:none; background:var(--danger); color:white; font-weight:700;">Hapus</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-overlay" id="modalInput">
+                    <aside class="card-input">
+                        <h2 style="margin-bottom: 20px; font-weight: 800;" id="modalTitle">Tambah Koleksi</h2>
+                        <input type="text" id="namaUrl" placeholder="Nama Situs"
+                            style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
+                        <input type="text" id="isiUrl" placeholder="URL (https://...)"
+                            style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
+                        <input type="text" id="kategoriUrl" list="kategoriList" placeholder="Kategori"
+                            style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border);">
+                        <textarea id="deskripsiUrl" placeholder="Deskripsi (Opsional)"
+                            style="width:100%; padding:14px; margin-bottom:12px; border-radius:12px; border:1px solid var(--border); font-family: inherit; resize: none; height: 80px;"></textarea>
+                        <datalist id="kategoriList"></datalist>
+                        <button onclick="simpanLink()"
+                            style="width:100%; padding:16px; background:var(--primary-gradient); color:white; border:none; border-radius:14px; font-weight:800; cursor:pointer;">Simpan
+                            Data</button>
+                        <button onclick="closeModal()"
+                            style="width:100%; padding:12px; background:none; border:none; color:var(--text-muted); cursor:pointer; font-weight:600; margin-top:5px;">Tutup</button>
+                    </aside>
+                </div>
+
+                <div class="wrapper" style="max-width: 850px; margin: 0 auto; padding: 0 16px;">
+                    <div class="toolbar"
+                        style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h2 style="font-size: 11px; font-weight: 800; color: var(--text-muted); letter-spacing: 1px;">
+                            LIBRARY
+                        </h2>
+                        <div class="view-toggle">
+                            <button id="btnList" class="active-view" onclick="toggleView('list')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                </svg>
+                            </button>
+                            <button id="btnGrid" onclick="toggleView('grid')">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="displayArea"></div>
+                </div>
+            </div>
+
+            <div id="logoutOverlay" class="alert-overlay">
+                <div class="confirm-box">
+                    <div class="logout-emoji">👋</div>
+                    <h3 style="margin-bottom: 8px; font-size: 18px; color: var(--text-main); font-weight: 800;">Sampai
+                        Jumpa!
+                    </h3>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
+                        Yakin ingin keluar dari sesi ini?<br>Anda harus login ulang nanti.
+                    </p>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="closeLogoutModal()" class="btn-cancel">Batal</button>
+                        <button onclick="confirmLogoutAction()" class="btn-confirm-logout">Keluar</button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwS1hvXofvKEgKzoML41a8d9UpUwO-1441wrDGDXeNWZHWjPz0JHOMfvHd_TdJyKDR1/exec";
+
+                let currentEditingId = null;
+                let currentView = 'list';
+                let cachedLinks = [];
+                let currentUser = JSON.parse(localStorage.getItem('tablink_user')) || null;
+                const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 Menit Inaktivitas
+
+
+                // Tambahkan ini di dalam bagian script
+                document.querySelectorAll('#loginForm input, #registerForm input').forEach(input => {
+                    input.addEventListener('keypress', function (e) {
+                        if (e.key === 'Enter') {
+                            const type = this.closest('#loginForm') ? 'login' : 'register';
+                            handleAuth(type);
+                        }
+                    });
+                });
+
+                // Tambahkan listener untuk input di dalam modal
+                document.querySelectorAll('#modalInput input, #modalInput textarea').forEach(input => {
+                    input.addEventListener('keypress', function (e) {
+                        // Jika Enter ditekan dan bukan di dalam textarea (agar textarea tetap bisa ganti baris)
+                        if (e.key === 'Enter' && this.tagName !== 'TEXTAREA') {
+                            e.preventDefault(); // Mencegah form reload jika ada
+                            simpanLink();
+                        }
+                    });
+                });
+
+                // --- AUTH SYSTEM ---
+                function toggleAuthView() {
+                    const isLogin = document.getElementById('loginForm').style.display !== 'none';
+                    document.getElementById('loginForm').style.display = isLogin ? 'none' : 'block';
+                    document.getElementById('registerForm').style.display = isLogin ? 'block' : 'none';
+                }
+
+                async function handleAuth(type) {
+                    const user = type === 'login' ? document.getElementById('userLogin').value : document.getElementById('userReg').value;
+                    const pass = type === 'login' ? document.getElementById('passLogin').value : document.getElementById('passReg').value;
+
+                    if (!user || !pass) return alert("Isi username dan password!");
+                    if (type === 'login') { localStorage.removeItem('tablink_user'); }
+
+                    const btn = type === 'login' ? document.getElementById('btnLogin') : document.getElementById('btnReg');
+                    const originalText = btn.innerText;
+                    btn.innerText = "Memproses...";
+                    btn.disabled = true;
+
+                    const fd = new URLSearchParams();
+                    fd.append("action", type);
+                    fd.append("username", user);
+                    fd.append("password", pass);
+
+                    try {
+                        const response = await fetch(WEB_APP_URL, { method: "POST", body: fd });
+                        const result = await response.json();
+
+                        if (result.status === "success") {
+                            if (type === 'register') {
+                                showToast("✅ Akun berhasil dibuat! Silakan Login.");
+                                document.getElementById('userReg').value = "";
+                                document.getElementById('passReg').value = "";
+                                setTimeout(() => toggleAuthView(), 1500);
+                            } else {
+                                currentUser = result.user;
+                                localStorage.setItem('tablink_user', JSON.stringify(currentUser));
+                                updateActivity(); // Set aktivitas awal
+                                showToast("Selamat Datang!");
+                                setTimeout(() => checkSession(), 800);
+
+                            }
+                        } else {
+                            alert(result.message);
+                        }
+                    } catch (e) {
+                        alert("Gagal terhubung ke server.");
+                    } finally {
+                        btn.innerText = originalText;
+                        btn.disabled = false;
                     }
-                } else {
-                    alert(result.message);
                 }
-            } catch (e) {
-                alert("Gagal terhubung ke server.");
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }
-        }
 
-        function checkSession() {
-            if (currentUser) {
-                document.getElementById('authScreen').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                document.getElementById('sessName').innerText = currentUser.username.toUpperCase();
-                fetchDataFromServer();
-            } else {
-                document.getElementById('authScreen').style.display = 'flex';
-                document.getElementById('mainApp').style.display = 'none';
-            }
-        }
+                function checkSession() {
+                    if (currentUser) {
+                        if (isSessionExpired()) {
+                            logoutActionSilently("Sesi Anda telah berakhir. Silakan login kembali.");
+                            return;
+                        }
+                        updateActivity();
+                        document.getElementById('authScreen').style.display = 'none';
+                        document.getElementById('mainApp').style.display = 'block';
+                        document.getElementById('sessName').innerText = currentUser.username.toUpperCase();
+                        fetchDataFromServer();
+                    } else {
+                        document.getElementById('authScreen').style.display = 'flex';
+                        document.getElementById('mainApp').style.display = 'none';
+                    }
+                }
 
-        function logout() {
-            document.getElementById('logoutOverlay').style.display = 'flex';
-        }
+                function updateActivity() {
+                    if (currentUser) {
+                        localStorage.setItem('tablink_last_activity', Date.now().toString());
+                    }
+                }
 
-        function closeLogoutModal() {
-            document.getElementById('logoutOverlay').style.display = 'none';
-        }
+                function isSessionExpired() {
+                    if (!currentUser) return false;
+                    const lastActivity = localStorage.getItem('tablink_last_activity');
+                    if (!lastActivity) return true;
+                    return (Date.now() - parseInt(lastActivity)) > SESSION_TIMEOUT;
+                }
 
-        function confirmLogoutAction() {
-            closeLogoutModal();
+                function logoutActionSilently(reason) {
+                    localStorage.removeItem('tablink_user');
+                    localStorage.removeItem('tablink_last_activity');
+                    currentUser = null;
+                    cachedLinks = [];
+                    checkSession();
+                    if (reason) alert(reason);
+                }
 
-            // 1. Tambahkan overlay loading agar transisi tidak terasa kosong
-            const loader = document.createElement('div');
-            loader.innerHTML = `
+
+                function logout() {
+                    document.getElementById('logoutOverlay').style.display = 'flex';
+                }
+
+                function closeLogoutModal() {
+                    document.getElementById('logoutOverlay').style.display = 'none';
+                }
+
+                function confirmLogoutAction() {
+                    closeLogoutModal();
+
+                    // 1. Tambahkan overlay loading agar transisi tidak terasa kosong
+                    const loader = document.createElement('div');
+                    loader.innerHTML = `
                 <div style="position:fixed; top:0; left:0; width:100%; height:100%; 
                             background:var(--bg); display:flex; flex-direction:column; 
                             align-items:center; justify-content:center; z-index:9999; opacity:0; transition:0.5s;">
@@ -934,78 +1164,79 @@
                 </div>
                 <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
             `;
-            const loaderElem = loader.firstElementChild;
-            const styleElem = loader.lastElementChild;
-            document.body.appendChild(loaderElem);
-            document.body.appendChild(styleElem);
+                    const loaderElem = loader.firstElementChild;
+                    const styleElem = loader.lastElementChild;
+                    document.body.appendChild(loaderElem);
+                    document.body.appendChild(styleElem);
 
-            // 2. Efek Fade Out pada Aplikasi Utama
-            const mainApp = document.getElementById('mainApp');
-            mainApp.style.filter = 'blur(10px)';
-            mainApp.style.opacity = '0';
-            mainApp.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                    // 2. Efek Fade Out pada Aplikasi Utama
+                    const mainApp = document.getElementById('mainApp');
+                    mainApp.style.filter = 'blur(10px)';
+                    mainApp.style.opacity = '0';
+                    mainApp.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
 
-            // 3. Munculkan Loader
-            setTimeout(() => {
-                loaderElem.style.opacity = '1';
-            }, 50);
+                    // 3. Munculkan Loader
+                    setTimeout(() => {
+                        loaderElem.style.opacity = '1';
+                    }, 50);
 
-            // 4. Eksekusi Pembersihan
-            setTimeout(() => {
-                localStorage.clear();
-                currentUser = null;
-                cachedLinks = [];
-                window.location.reload();
-            }, 1500);
-        }
+                    // 4. Eksekusi Pembersihan
+                    setTimeout(() => {
+                        localStorage.removeItem('tablink_user');
+                        localStorage.removeItem('tablink_last_activity');
+                        currentUser = null;
+                        cachedLinks = [];
+                        window.location.reload();
+                    }, 1500);
+                }
 
-        async function fetchDataFromServer() {
-            if (!currentUser) return;
-            showSkeleton();
-            const cacheBuster = new Date().getTime();
-            const url = `${WEB_APP_URL}?action=getLinks&userId=${currentUser.id}&v=${cacheBuster}`;
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                cachedLinks = Array.isArray(data) ? data : [];
-                renderDisplay();
-                document.getElementById("statusInfo").innerHTML = `Sesi: ${currentUser.username.toUpperCase()}<br>STATUS: UPDATED`;
-            } catch (e) {
-                document.getElementById("displayArea").innerHTML = "<p style='text-align:center;'>Gagal memuat data.</p>";
-            }
-        }
+                async function fetchDataFromServer() {
+                    if (!currentUser) return;
+                    showSkeleton();
+                    const cacheBuster = new Date().getTime();
+                    const url = `${WEB_APP_URL}?action=getLinks&userId=${currentUser.id}&v=${cacheBuster}`;
+                    try {
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        cachedLinks = Array.isArray(data) ? data : [];
+                        renderDisplay();
+                        document.getElementById("statusInfo").innerHTML = `Sesi: ${currentUser.username.toUpperCase()}<br>STATUS: UPDATED`;
+                    } catch (e) {
+                        document.getElementById("displayArea").innerHTML = "<p style='text-align:center;'>Gagal memuat data.</p>";
+                    }
+                }
 
-        // --- RENDER DENGAN DESKRIPSI ---
-        function renderDisplay(filter = "") {
-            const area = document.getElementById("displayArea");
-            area.innerHTML = "";
-            const filtered = cachedLinks.filter(l =>
-                l.nama.toLowerCase().includes(filter) ||
-                l.url.toLowerCase().includes(filter) ||
-                (l.deskripsi && l.deskripsi.toLowerCase().includes(filter)) ||
-                (l.kategori && l.kategori.toLowerCase().includes(filter))
-            );
+                // --- RENDER DENGAN DESKRIPSI ---
+                function renderDisplay(filter = "") {
+                    const area = document.getElementById("displayArea");
+                    area.innerHTML = "";
+                    const filtered = cachedLinks.filter(l =>
+                        l.nama.toLowerCase().includes(filter) ||
+                        l.url.toLowerCase().includes(filter) ||
+                        (l.deskripsi && l.deskripsi.toLowerCase().includes(filter)) ||
+                        (l.kategori && l.kategori.toLowerCase().includes(filter))
+                    );
 
-            if (filtered.length === 0) {
-                area.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-weight:700;">Tidak ditemukan.</div>`;
-                return;
-            }
+                    if (filtered.length === 0) {
+                        area.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-weight:700;">Tidak ditemukan.</div>`;
+                        return;
+                    }
 
-            const grouped = {};
-            filtered.forEach(l => {
-                const k = l.kategori || "Umum";
-                if (!grouped[k]) grouped[k] = [];
-                grouped[k].push(l);
-            });
+                    const grouped = {};
+                    filtered.forEach(l => {
+                        const k = l.kategori || "Umum";
+                        if (!grouped[k]) grouped[k] = [];
+                        grouped[k].push(l);
+                    });
 
-            Object.keys(grouped).forEach(kategori => {
-                const groupDiv = document.createElement("div");
-                groupDiv.className = filter === "" ? "category-group" : "category-group active";
+                    Object.keys(grouped).forEach(kategori => {
+                        const groupDiv = document.createElement("div");
+                        groupDiv.className = filter === "" ? "category-group" : "category-group active";
 
-                const header = document.createElement("div");
-                header.className = "category-header";
-                header.onclick = (e) => { if (!e.target.closest('button')) groupDiv.classList.toggle('active'); };
-                header.innerHTML = `
+                        const header = document.createElement("div");
+                        header.className = "category-header";
+                        header.onclick = (e) => { if (!e.target.closest('button')) groupDiv.classList.toggle('active'); };
+                        header.innerHTML = `
                     <div class="category-title">
                         <span class="arrow-icon">▼</span>📂 ${kategori}
                         <span class="cat-badge">${grouped[kategori].length}</span>
@@ -1015,15 +1246,15 @@
                         <button class="btn-cat" style="color:var(--danger)" onclick="hapusKategori('${kategori}')">DELETE</button>
                     </div>`;
 
-                const content = document.createElement("div");
-                content.className = "category-content";
+                        const content = document.createElement("div");
+                        content.className = "category-content";
 
-                if (currentView === 'list') {
-                    grouped[kategori].forEach(link => {
-                        const item = document.createElement("div");
-                        item.className = "link-item";
-                        item.onclick = (e) => { if (!e.target.closest('button')) bukaLink(link.url); };
-                        item.innerHTML = `
+                        if (currentView === 'list') {
+                            grouped[kategori].forEach(link => {
+                                const item = document.createElement("div");
+                                item.className = "link-item";
+                                item.onclick = (e) => { if (!e.target.closest('button')) bukaLink(link.url); };
+                                item.innerHTML = `
                             <div style="flex-grow:1; overflow:hidden; padding-right:10px;">
                                 <div style="color:var(--primary); font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(link.nama)}</div>
                                 <small style="color:var(--text-muted); font-size:10px; display:block; margin-bottom:2px;">${link.url}</small>
@@ -1033,17 +1264,17 @@
                                 <button class="btn-icon btn-edit" onclick="editLink('${link.id}','${escapeHtml(link.nama)}','${escapeHtml(link.url)}','${escapeHtml(link.kategori)}','${escapeHtml(link.deskripsi || '')}')"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"></path><path d=\"M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"></path></svg></button>
                                 <button class="btn-icon btn-del" onclick="hapusLink('${link.id}')"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"3 6 5 6 21 6\"></polyline><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"></path><line x1=\"10\" y1=\"11\" x2=\"10\" y2=\"17\"></line><line x1=\"14\" y1=\"11\" x2=\"14\" y2=\"17\"></line></svg></button>
                             </div>`;
-                        content.appendChild(item);
-                    });
-                } else {
-                    const grid = document.createElement("div");
-                    grid.className = "grid-container";
-                    grouped[kategori].forEach(link => {
-                        const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${link.url.replace('https://', '').split(/[/?#]/)[0]}`;
-                        const gCard = document.createElement("div");
-                        gCard.className = "grid-card";
-                        gCard.onclick = (e) => { if (!e.target.closest('button')) bukaLink(link.url); };
-                        gCard.innerHTML = `
+                                content.appendChild(item);
+                            });
+                        } else {
+                            const grid = document.createElement("div");
+                            grid.className = "grid-container";
+                            grouped[kategori].forEach(link => {
+                                const faviconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${link.url.replace('https://', '').split(/[/?#]/)[0]}`;
+                                const gCard = document.createElement("div");
+                                gCard.className = "grid-card";
+                                gCard.onclick = (e) => { if (!e.target.closest('button')) bukaLink(link.url); };
+                                gCard.innerHTML = `
                             <div style="width:100%; height:70px; background:var(--border); display:flex; align-items:center; justify-content:center;">
                                 <img src="${faviconUrl}" style="width:28px; height:28px;" onerror="this.src='https://cdn-icons-png.flaticon.com/128/6994/6994770.png'">
                             </div>
@@ -1055,173 +1286,186 @@
                                     <button class="btn-icon btn-del" style="width:28px; height:28px; " onclick="event.stopPropagation(); hapusLink('${link.id}')"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"3 6 5 6 21 6\"></polyline><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"></path><line x1=\"10\" y1=\"11\" x2=\"10\" y2=\"17\"></line><line x1=\"14\" y1=\"11\" x2=\"14\" y2=\"17\"></line></svg></button>
                                 </div>
                             </div>`;
-                        grid.appendChild(gCard);
+                                grid.appendChild(gCard);
+                            });
+                            content.appendChild(grid);
+                        }
+                        groupDiv.appendChild(header); groupDiv.appendChild(content); area.appendChild(groupDiv);
                     });
-                    content.appendChild(grid);
                 }
-                groupDiv.appendChild(header); groupDiv.appendChild(content); area.appendChild(groupDiv);
-            });
-        }
 
-        async function simpanLink() {
-            const nama = document.getElementById("namaUrl").value;
-            const url = document.getElementById("isiUrl").value;
-            const kategori = document.getElementById("kategoriUrl").value;
-            const deskripsi = document.getElementById("deskripsiUrl").value;
+                async function simpanLink() {
+                    const nama = document.getElementById("namaUrl").value;
+                    const url = document.getElementById("isiUrl").value;
+                    const kategori = document.getElementById("kategoriUrl").value;
+                    const deskripsi = document.getElementById("deskripsiUrl").value;
 
-            if (!nama || !url) return showToast("⚠️ Nama dan URL wajib diisi!");
+                    if (!nama || !url) return showToast("⚠️ Nama dan URL wajib diisi!");
 
-            const finalKategori = kategori || "Umum";
-            const tempId = currentEditingId || Date.now().toString();
-            const newData = { id: tempId, nama: nama, url: url, kategori: finalKategori, deskripsi: deskripsi };
+                    const finalKategori = kategori || "Umum";
+                    const tempId = currentEditingId || Date.now().toString();
+                    const newData = { id: tempId, nama: nama, url: url, kategori: finalKategori, deskripsi: deskripsi };
 
-            if (currentEditingId) {
-                const idx = cachedLinks.findIndex(l => l.id == currentEditingId);
-                if (idx !== -1) cachedLinks[idx] = newData;
-            } else {
-                cachedLinks.unshift(newData);
-            }
+                    if (currentEditingId) {
+                        const idx = cachedLinks.findIndex(l => l.id == currentEditingId);
+                        if (idx !== -1) cachedLinks[idx] = newData;
+                    } else {
+                        cachedLinks.unshift(newData);
+                    }
 
-            renderDisplay(document.getElementById("searchInput").value.toLowerCase());
-            closeModal();
-            showToast("Menyimpan...");
+                    renderDisplay(document.getElementById("searchInput").value.toLowerCase());
+                    closeModal();
+                    showToast("Menyimpan...");
 
-            const fd = new URLSearchParams();
-            fd.append("action", currentEditingId ? "update" : "save");
-            fd.append("userId", currentUser.id);
-            fd.append("nama", nama);
-            fd.append("url", url);
-            fd.append("kategori", finalKategori);
-            fd.append("deskripsi", deskripsi); // Mengirim deskripsi ke GAS
-            if (currentEditingId) fd.append("id", currentEditingId);
+                    const fd = new URLSearchParams();
+                    fd.append("action", currentEditingId ? "update" : "save");
+                    fd.append("userId", currentUser.id);
+                    fd.append("nama", nama);
+                    fd.append("url", url);
+                    fd.append("kategori", finalKategori);
+                    fd.append("deskripsi", deskripsi); // Mengirim deskripsi ke GAS
+                    if (currentEditingId) fd.append("id", currentEditingId);
 
-            await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
-        }
+                    await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
+                }
 
-        function editLink(id, n, u, k, d) {
-            document.getElementById("namaUrl").value = n;
-            document.getElementById("isiUrl").value = u;
-            document.getElementById("kategoriUrl").value = k;
-            document.getElementById("deskripsiUrl").value = d || ""; // Set deskripsi
-            currentEditingId = id;
-            document.getElementById("modalTitle").innerText = "Update Koleksi";
-            openModal();
-        }
+                function editLink(id, n, u, k, d) {
+                    document.getElementById("namaUrl").value = n;
+                    document.getElementById("isiUrl").value = u;
+                    document.getElementById("kategoriUrl").value = k;
+                    document.getElementById("deskripsiUrl").value = d || ""; // Set deskripsi
+                    currentEditingId = id;
+                    document.getElementById("modalTitle").innerText = "Update Koleksi";
+                    openModal();
+                }
 
-        // --- UI HELPERS ---
-        function handleSearch() { renderDisplay(document.getElementById("searchInput").value.toLowerCase()); }
+                // --- UI HELPERS ---
+                function handleSearch() { renderDisplay(document.getElementById("searchInput").value.toLowerCase()); }
 
-        function toggleView(v) {
-            currentView = v;
-            document.getElementById("btnList").classList.toggle("active-view", v === 'list');
-            document.getElementById("btnGrid").classList.toggle("active-view", v === 'grid');
-            renderDisplay(document.getElementById("searchInput").value.toLowerCase());
-        }
+                function toggleView(v) {
+                    currentView = v;
+                    document.getElementById("btnList").classList.toggle("active-view", v === 'list');
+                    document.getElementById("btnGrid").classList.toggle("active-view", v === 'grid');
+                    renderDisplay(document.getElementById("searchInput").value.toLowerCase());
+                }
 
-        const ICON_SUN = `<svg width="24" height="24" viewBox="0 0 24 24" fill="#FDB813" stroke="none"><circle cx="12" cy="12" r="6"></circle><path d="M12 2V4M12 20V22M4 12H2M22 12H20M5 5L6 6M18 18L19 19M5 19L6 18M18 6L19 5" stroke="#FDB813" stroke-width="2" stroke-linecap="round"/></svg>`;
-        const ICON_MOON = `<svg width="24" height="24" viewBox="0 0 24 24" fill="#6366f1" stroke="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+                const ICON_SUN = `<svg width="24" height="24" viewBox="0 0 24 24" fill="#FDB813" stroke="none"><circle cx="12" cy="12" r="6"></circle><path d="M12 2V4M12 20V22M4 12H2M22 12H20M5 5L6 6M18 18L19 19M5 19L6 18M18 6L19 5" stroke="#FDB813" stroke-width="2" stroke-linecap="round"/></svg>`;
+                const ICON_MOON = `<svg width="24" height="24" viewBox="0 0 24 24" fill="#6366f1" stroke="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
 
-        function toggleDarkMode() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            localStorage.setItem('darkMode', isDark);
-            document.getElementById('darkBtn').innerHTML = isDark ? ICON_SUN : ICON_MOON;
-        }
+                function toggleDarkMode() {
+                    const isDark = document.body.classList.toggle('dark-mode');
+                    localStorage.setItem('darkMode', isDark);
+                    document.getElementById('darkBtn').innerHTML = isDark ? ICON_SUN : ICON_MOON;
+                }
 
-        function showToast(msg) {
-            const t = document.getElementById("toast");
-            t.innerText = msg; t.classList.add("show");
-            setTimeout(() => t.classList.remove("show"), 3000);
-        }
+                function showToast(msg) {
+                    const t = document.getElementById("toast");
+                    t.innerText = msg; t.classList.add("show");
+                    setTimeout(() => t.classList.remove("show"), 3000);
+                }
 
-        function showSkeleton() {
-            document.getElementById("displayArea").innerHTML = `<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>`;
-        }
+                function showSkeleton() {
+                    document.getElementById("displayArea").innerHTML = `<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>`;
+                }
 
-        function openModal() { updateKategoriDatalist(); document.getElementById("modalInput").style.display = "flex"; }
+                function openModal() { updateKategoriDatalist(); document.getElementById("modalInput").style.display = "flex"; }
 
-        function closeModal() {
-            document.getElementById("modalInput").style.display = "none";
-            resetForm();
-        }
+                function closeModal() {
+                    document.getElementById("modalInput").style.display = "none";
+                    resetForm();
+                }
 
-        function resetForm() {
-            document.getElementById("namaUrl").value = "";
-            document.getElementById("isiUrl").value = "";
-            document.getElementById("kategoriUrl").value = "";
-            document.getElementById("deskripsiUrl").value = "";
-            currentEditingId = null;
-            document.getElementById("modalTitle").innerText = "Tambah Koleksi";
-        }
+                function resetForm() {
+                    document.getElementById("namaUrl").value = "";
+                    document.getElementById("isiUrl").value = "";
+                    document.getElementById("kategoriUrl").value = "";
+                    document.getElementById("deskripsiUrl").value = "";
+                    currentEditingId = null;
+                    document.getElementById("modalTitle").innerText = "Tambah Koleksi";
+                }
 
-        function updateKategoriDatalist() {
-            const list = document.getElementById("kategoriList");
-            list.innerHTML = "";
-            const unik = [...new Set(cachedLinks.map(l => l.kategori || "Umum"))];
-            unik.forEach(k => { const o = document.createElement("option"); o.value = k; list.appendChild(o); });
-        }
+                function updateKategoriDatalist() {
+                    const list = document.getElementById("kategoriList");
+                    list.innerHTML = "";
+                    const unik = [...new Set(cachedLinks.map(l => l.kategori || "Umum"))];
+                    unik.forEach(k => { const o = document.createElement("option"); o.value = k; list.appendChild(o); });
+                }
 
-        function escapeHtml(t) {
-            if (!t) return "";
-            const d = document.createElement('div');
-            d.textContent = t;
-            return d.innerHTML;
-        }
+                function escapeHtml(t) {
+                    if (!t) return "";
+                    const d = document.createElement('div');
+                    d.textContent = t;
+                    return d.innerHTML;
+                }
 
-        function bukaLink(u) {
-            if (!u || u === "#") return;
-            const target = u.startsWith('http') ? u : 'https://' + u;
-            window.open(target, '_blank');
-        }
+                function bukaLink(u) {
+                    if (!u || u === "#") return;
+                    const target = u.startsWith('http') ? u : 'https://' + u;
+                    window.open(target, '_blank');
+                }
 
-        function customConfirm(title, msg, onConfirm) {
-            document.getElementById("alertTitle").innerText = title;
-            document.getElementById("alertMsg").innerText = msg;
-            document.getElementById("alertOverlay").style.display = "flex";
-            document.getElementById("btnConfirmAlert").onclick = () => { onConfirm(); closeAlert(); };
-        }
+                function customConfirm(title, msg, onConfirm) {
+                    document.getElementById("alertTitle").innerText = title;
+                    document.getElementById("alertMsg").innerText = msg;
+                    document.getElementById("alertOverlay").style.display = "flex";
+                    document.getElementById("btnConfirmAlert").onclick = () => { onConfirm(); closeAlert(); };
+                }
 
-        function closeAlert() { document.getElementById("alertOverlay").style.display = "none"; }
+                function closeAlert() { document.getElementById("alertOverlay").style.display = "none"; }
 
-        async function hapusLink(id) {
-            customConfirm("Hapus?", "Data akan dihapus permanen.", async () => {
-                cachedLinks = cachedLinks.filter(l => l.id != id);
-                renderDisplay(document.getElementById("searchInput").value.toLowerCase());
-                const fd = new URLSearchParams();
-                fd.append("action", "delete"); fd.append("id", id); fd.append("userId", currentUser.id);
-                await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
-            });
-        }
+                async function hapusLink(id) {
+                    customConfirm("Hapus?", "Data akan dihapus permanen.", async () => {
+                        cachedLinks = cachedLinks.filter(l => l.id != id);
+                        renderDisplay(document.getElementById("searchInput").value.toLowerCase());
+                        const fd = new URLSearchParams();
+                        fd.append("action", "delete"); fd.append("id", id); fd.append("userId", currentUser.id);
+                        await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
+                    });
+                }
 
-        async function gantiNamaKategori(lama) {
-            const baru = prompt("Nama baru untuk kategori '" + lama + "':", lama);
-            if (baru && baru !== lama) {
-                cachedLinks.forEach(l => { if (l.kategori === lama) l.kategori = baru; });
-                renderDisplay(document.getElementById("searchInput").value.toLowerCase());
-                const fd = new URLSearchParams();
-                fd.append("action", "renameCategory"); fd.append("oldCategory", lama); fd.append("newCategory", baru); fd.append("userId", currentUser.id);
-                await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
-                showToast("Kategori diperbarui!");
-            }
-        }
+                async function gantiNamaKategori(lama) {
+                    const baru = prompt("Nama baru untuk kategori '" + lama + "':", lama);
+                    if (baru && baru !== lama) {
+                        cachedLinks.forEach(l => { if (l.kategori === lama) l.kategori = baru; });
+                        renderDisplay(document.getElementById("searchInput").value.toLowerCase());
+                        const fd = new URLSearchParams();
+                        fd.append("action", "renameCategory"); fd.append("oldCategory", lama); fd.append("newCategory", baru); fd.append("userId", currentUser.id);
+                        await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
+                        showToast("Kategori diperbarui!");
+                    }
+                }
 
-        function hapusKategori(namaKategori) {
-            customConfirm("Hapus Kategori?", `Hapus semua link di "${namaKategori}"?`, async () => {
-                cachedLinks = cachedLinks.filter(l => l.kategori !== namaKategori);
-                renderDisplay(document.getElementById("searchInput").value.toLowerCase());
-                const fd = new URLSearchParams();
-                fd.append("action", "deleteCategory"); fd.append("kategori", namaKategori); fd.append("userId", currentUser.id);
-                await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
-                showToast("Kategori dihapus!");
-            });
-        }
+                function hapusKategori(namaKategori) {
+                    customConfirm("Hapus Kategori?", `Hapus semua link di "${namaKategori}"?`, async () => {
+                        cachedLinks = cachedLinks.filter(l => l.kategori !== namaKategori);
+                        renderDisplay(document.getElementById("searchInput").value.toLowerCase());
+                        const fd = new URLSearchParams();
+                        fd.append("action", "deleteCategory"); fd.append("kategori", namaKategori); fd.append("userId", currentUser.id);
+                        await fetch(WEB_APP_URL, { method: "POST", body: fd, mode: "no-cors" });
+                        showToast("Kategori dihapus!");
+                    });
+                }
 
-        if (localStorage.getItem('darkMode') === 'true') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('darkBtn').innerHTML = ICON_SUN;
-        }
+                if (localStorage.getItem('darkMode') === 'true') {
+                    document.body.classList.add('dark-mode');
+                    document.getElementById('darkBtn').innerHTML = ICON_SUN;
+                }
 
-        window.onload = checkSession;
-    </script>
-</body>
+                // --- SESSION & ACTIVITY LISTENERS ---
+                ['mousedown', 'keydown', 'touchstart', 'scroll', 'click'].forEach(evt => {
+                    window.addEventListener(evt, updateActivity, { passive: true });
+                });
+
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') checkSession();
+                });
+
+                setInterval(() => {
+                    if (currentUser && isSessionExpired()) checkSession();
+                }, 30000); // Cek setiap 30 detik
+
+                window.onload = checkSession;
+            </script>
+        </body>
 
 </html>
